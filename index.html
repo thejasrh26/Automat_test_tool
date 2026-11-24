@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#063b46" />
+<meta name="description" content="EBSL Automat water meter physical verification calculator – compare cumulative totalizer volume with physically collected water and Modbus flow rate." />
+<title>EBSL Automat | Water Meter Physical Verification Calculator</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<header><div class="wrap"><div class="brandbar"><img class="brand-logo" src="assets/ebsl-logo.png" alt="EBSL Automat logo"></div><div class="eyebrow">Field verification tool · Modbus RS485</div><h1>EBSL Automat<br>Water Meter Physical Verification Calculator</h1><p>Compare the meter's cumulative-volume change with the water physically collected. Select the elapsed interval yourself and enter the readings after the test.</p><span class="spec-pill" id="diameterPill">Selected pipe diameter: 24 mm</span></div></header>
+<div id="runtimeStatus" class="notice" style="display:none;max-width:1120px;margin:14px auto;padding:12px 18px" role="status"></div>
+<noscript><div class="notice" style="max-width:1120px;margin:14px auto;padding:14px 18px;border-color:#e8b4aa;background:#fff4f2;color:#8a2e22"><strong>JavaScript is disabled in this viewer.</strong> Open this HTML file directly in Chrome (Android) or Safari (iPhone). File previews in messaging, cloud-drive or document apps may not run calculator buttons.</div></noscript>
+<main>
+<div class="layout">
+<section>
+<div class="card" id="volumeCalculator">
+<h2>1. Enter test readings</h2><p class="sub">Use cumulative totalizer readings in litres. Take the first reading immediately before collecting water and the second immediately after.</p>
+<div class="grid">
+<div class="field full"><label for="pipeDiameter">Pipe diameter</label><select id="pipeDiameter"><option value="15">15 mm (DN15)</option><option value="20">20 mm (DN20)</option><option value="24" selected>24 mm</option><option value="25">25 mm (DN25)</option><option value="32">32 mm (DN32)</option><option value="40">40 mm (DN40)</option><option value="50">50 mm (DN50)</option><option value="65">65 mm (DN65)</option><option value="80">80 mm (DN80)</option><option value="100">100 mm (DN100)</option><option value="custom">Other / custom diameter</option></select><div class="field hidden" id="customDiameterWrap" style="margin-top:8px"><label for="customDiameter">Enter diameter (mm)</label><input id="customDiameter" type="number" min="1" step="any" placeholder="Enter pipe diameter in mm"></div><span class="hint">Choose the actual internal pipe diameter used for this test. This is recorded with the test; it does not alter the volume or flow-rate arithmetic.</span></div>
+<div class="field"><label for="initial">Previous cumulative reading (L)</label><input id="initial" type="number" min="0" step="any" placeholder="e.g. 43976"></div>
+<div class="field"><label for="final">New cumulative reading (L)</label><input id="final" type="number" min="0" step="any" placeholder="Enter after test"></div>
+<div class="field"><label for="actual">Actual physically collected volume (L)</label><input id="actual" type="number" min="0" step="any" placeholder="e.g. 20"></div>
+
+<div class="field"><label for="duration">Elapsed test interval</label><div class="interval"><input id="duration" type="number" min="0" step="any" placeholder="e.g. 5"><select id="unit"><option value="sec">Seconds</option><option value="min" selected>Minutes</option><option value="hr">Hours</option></select></div></div>
+<div class="field full"><label for="notes">Test notes (optional)</label><input id="notes" type="text" placeholder="e.g. outlet fully open, steady flow, 20 L calibrated vessel"></div>
+</div>
+<div class="actions"><button class="primary" id="calculate" type="button">Calculate accuracy</button><button class="secondary" id="reset" type="button">Clear inputs</button></div>
+<div class="error" id="error" role="alert"></div>
+<div class="notice"><strong>Important:</strong> The actual collected volume must be measured independently (for example, using a calibrated vessel or weighing method). The elapsed interval is used to calculate average flow rate; it does not replace the physical volume measurement.</div>
+</div>
+<div class="card" id="flowCalculator">
+<h2>2. Flow-rate accuracy calculator</h2>
+<p class="sub">This is a separate calculator. It compares the average physical flow rate with the average flow rate reported by the meter or its Modbus monitoring system.</p>
+<div class="grid">
+<div class="field"><label for="flowModbus">Average Modbus flow rate (L/min)</label><input id="flowModbus" type="number" min="0" step="any" placeholder="e.g. 7.6"><span class="hint">Enter the average of multiple flow-rate readings during the same physical collection interval, in L/min.</span></div>
+<div class="field"><label>Physical average flow rate</label><div class="formula" id="physicalFlowPreview">Enter actual collected volume and test interval above.</div></div>
+</div>
+<div class="actions"><button class="primary" id="calculateFlow" type="button">Calculate flow-rate error</button></div>
+<div class="metrics" style="margin-top:14px">
+<div class="metric"><span>Physical average flow</span><strong id="flowActualResult">— L/min</strong></div>
+<div class="metric"><span>Average Modbus flow</span><strong id="flowModbusResult">— L/min</strong></div>
+<div class="metric"><span>Flow-rate difference</span><strong id="flowDifference">— L/min</strong></div>
+<div class="metric"><span>Flow-rate error</span><strong id="flowErrorResult">— %</strong></div>
+</div>
+<p class="foot" id="flowInterpretation">Enter the actual collected volume and interval above, then enter the average Modbus flow rate here.</p>
+</div>
+<div class="card" id="instructions">
+<h2>3. How to perform the test</h2><p class="sub">A simple repeatable procedure. Select the actual pipe diameter in the test readings section.</p>
+<ol style="padding-left:20px;margin:0;color:#334155">
+<li>Confirm the pipe is full of water, flow direction is correct, and there is no bypass or leakage.</li>
+<li>With water flow stopped, note the previous cumulative Modbus totalizer value (L).</li>
+<li>Choose the interval you want to test. Start the timer as you begin collecting water.</li>
+<li>Collect the water in a calibrated container. Record the actual collected litres and elapsed time.</li>
+<li>During the same collection interval, record the meter-reported flow rate at regular intervals (for example every 5–10 seconds), in L/min. Calculate the average of those readings and enter it above.</li>
+<li>Stop the flow and note the new cumulative totalizer value (L).</li>
+<li>Enter all values above and calculate. Repeat at low, medium and higher flow rates within the meter's rated range.</li>
+</ol>
+<p class="foot">If the meter totalizer uses multiple Modbus registers, combine them using the manufacturer's documented data type, word order and scaling. Enter the resulting cumulative volume in litres.</p>
+</div>
+</section>
+<aside>
+<div class="card result" id="resultCard" aria-live="polite">
+<h2>Test result</h2><p class="sub">Your calculated result will appear here.</p>
+<div class="hero-result"><div class="small">Meter-recorded volume</div><div class="big" id="meterVolume">— L</div><span class="status" id="status">Waiting for inputs</span></div>
+<div class="metrics">
+<div class="metric"><span>Volume difference</span><strong id="difference">— L</strong></div>
+<div class="metric"><span>Error percentage</span><strong id="errorPct">— %</strong></div>
+<div class="metric"><span>Actual average flow</span><strong id="actualFlow">— L/min</strong></div>
+<div class="metric"><span>Actual vs Modbus flow error</span><strong id="flowError">— %</strong></div>
+<div class="metric"><span>Average Modbus flow</span><strong id="meterFlow">— L/min</strong></div>
+</div>
+<div style="margin-top:16px"><div class="small" style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:7px">CALCULATION</div><div class="formula" id="formula">Meter volume = New totalizer − Previous totalizer<br>Error % = (Meter volume − Actual volume) ÷ Actual volume × 100</div></div>
+<p class="foot" id="interpretation">Enter readings and click Calculate accuracy. A positive error means the meter registered more than the physically collected volume; a negative error means it registered less.</p>
+</div>
+<div class="card" id="testLog">
+<h2>Test log</h2><p class="sub">Calculated tests are kept in this page until you close or refresh it. Use the export options to save your test history in Excel, Word, CSV or PDF. Volume error and flow-rate error are reported separately.</p>
+<div class="table-wrap"><table><thead><tr><th>Test</th><th>Actual (L)</th><th>Meter (L)</th><th>Volume error</th><th>Flow error</th><th>Pipe diameter</th><th>Interval</th><th></th></tr></thead><tbody id="log"><tr><td colspan="8" style="color:#64748b">No tests recorded yet.</td></tr></tbody></table></div>
+<p class="foot no-print">Use the <a href="#exportArea">Export Report section</a> below to download the test history.</p>
+</div>
+</aside>
+</div>
+
+<section class="card export-card no-print" id="exportArea" aria-label="Export test report">
+  <div class="export-heading">
+    <div>
+      <div class="eyebrow export-eyebrow">REPORT &amp; DOWNLOADS</div>
+      <h2>Export Test Report</h2>
+      <p class="sub">Download your EBSL Automat water-meter verification records in an editable Excel or Word file.</p>
+    </div>
+    <span class="export-count" id="exportCount">0 tests recorded</span>
+  </div>
+  <div class="export-panel">
+    <div class="export-copy"><strong>Choose a report format</strong><span>Excel for analysis · Word for a formatted report · CSV for raw data · PDF for printing</span></div>
+    <div class="export-actions"><button class="primary" id="exportExcel" type="button">▦ Export Excel</button><button class="secondary" id="exportWord" type="button">▤ Export Word</button><button class="secondary" id="export" type="button">↓ Export CSV</button><button class="secondary" id="exportPdf" type="button">▤ Export PDF</button></div>
+  </div>
+  <p class="export-message" id="exportStatus" role="status" aria-live="polite">Your export buttons are ready. Calculate at least one test before downloading a report.</p>
+</section>
+
+<p class="foot" style="max-width:760px;margin:0 auto">This calculator performs arithmetic only. It does not certify the meter or decide pass/fail. Compare the measured error with the manufacturer's specification for the installed meter and applicable test uncertainty. Ensure the collection vessel and measurement method are sufficiently accurate.</p>
+</main>
+<section id="printReport" aria-hidden="true"></section>
+<script src="js/app.js"></script>
+</body>
+</html>

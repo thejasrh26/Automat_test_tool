@@ -1,0 +1,6 @@
+Project: EBSL Automat Water Meter Physical Verification
+Entry point: index.html
+Standalone build: standalone.html
+Styles: css/styles.css
+Logic: js/app.js
+Brand asset: assets/ebsl-logo.png

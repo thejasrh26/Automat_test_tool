@@ -1,0 +1,1140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#063b46" />
+<meta name="description" content="EBSL Automat water meter physical verification calculator â€“ compare cumulative totalizer volume with physically collected water and Modbus flow rate." />
+<title>EBSL Automat | Water Meter Physical Verification Calculator</title>
+<style>
+:root {
+    --bg:#eefafa;
+    --card:#ffffff;
+    --ink:#12343b;
+    --muted:#607d83;
+    --line:#d7ebeb;
+    --aqua:#08a6a6;
+    --aqua-dark:#087f86;
+    --aqua-soft:#e4f8f6;
+    --deep:#073b46;
+    --green:#087a55;
+    --red:#b42318;
+    --amber:#946200;
+    --shadow:0 14px 38px rgba(8,85,93,.09)
+}
+* {
+    box-sizing:border-box
+}
+html {
+    scroll-behavior:smooth;
+    -webkit-text-size-adjust:100%
+}
+body {
+    margin:0;
+    background:radial-gradient(ellipse at 10% 0%,#d9f5f1 0,transparent 38%),linear-gradient(180deg,#f3fcfb 0%,#eefafa 52%,#f8fdfd 100%);
+    color:var(--ink);
+    font:15px/1.55 Inter,Segoe UI,Arial,sans-serif;
+    overflow-x:hidden
+}
+header {
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(125deg,#063b46 0%,#087f86 56%,#12aaa5 100%);
+    color:#fff;
+    padding:30px 22px 54px
+}
+header:before,header:after {
+    content:"";
+    position:absolute;
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:50%;
+    pointer-events:none
+}
+header:before {
+    width:420px;
+    height:420px;
+    right:-100px;
+    top:-245px
+}
+header:after {
+    width:300px;
+    height:300px;
+    right:95px;
+    bottom:-255px
+}
+.wrap {
+    max-width:1120px;
+    margin:auto;
+    position:relative;
+    z-index:1
+}
+.eyebrow {
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    opacity:.82;
+    font-weight:800
+}
+h1 {
+    font-size:clamp(27px,4vw,40px);
+    margin:9px 0 9px;
+    line-height:1.12;
+    letter-spacing:-.035em
+}
+header p {
+    margin:0;
+    color:#ddf6f3;
+    max-width:740px
+}
+.brandbar {
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:22px
+}
+.brand-logo {
+    width:164px;
+    max-height:68px;
+    object-fit:contain;
+    background:#fff;
+    border-radius:13px;
+    padding:8px 12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.12)
+}
+.spec-pill {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-top:17px;
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.3);
+    color:#efffff;
+    border-radius:99px;
+    padding:7px 13px;
+    font-size:12px;
+    font-weight:750;
+    backdrop-filter:blur(8px)
+}
+main {
+    max-width:1120px;
+    margin:-24px auto 52px;
+    padding:0 18px;
+    position:relative;
+    z-index:2
+}
+.layout {
+    display:grid;
+    grid-template-columns:1.12fr .88fr;
+    gap:20px;
+    align-items:start
+}
+.card {
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--line);
+    border-radius:19px;
+    padding:23px;
+    box-shadow:var(--shadow);
+    margin-bottom:19px
+}
+.card h2 {
+    font-size:19px;
+    margin:0 0 5px;
+    letter-spacing:-.02em;
+    color:#103e47
+}
+.sub {
+    color:var(--muted);
+    font-size:13px;
+    margin:0 0 19px
+}
+.grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px
+}
+.field {
+    display:flex;
+    flex-direction:column;
+    gap:6px
+}
+.field.full {
+    grid-column:1/-1
+}
+label {
+    font-size:13px;
+    font-weight:700;
+    color:#28535b
+}
+input,select {
+    width:100%;
+    height:46px;
+    border:1px solid #c9e2e2;
+    border-radius:11px;
+    padding:0 13px;
+    font:inherit;
+    color:var(--ink);
+    background:#fbffff;
+    outline:none;
+    transition:border .18s,box-shadow .18s
+}
+input:focus,select:focus {
+    border-color:var(--aqua);
+    box-shadow:0 0 0 4px rgba(8,166,166,.13)
+}
+.hint {
+    font-size:11px;
+    color:var(--muted)
+}
+.interval {
+    display:grid;
+    grid-template-columns:1fr 130px;
+    gap:10px
+}
+.actions {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:19px
+}
+button {
+    border:0;
+    border-radius:11px;
+    padding:12px 19px;
+    font-weight:750;
+    font-size:14px;
+    cursor:pointer;
+    transition:transform .15s,box-shadow .15s,background .15s,opacity .15s
+}
+button:hover {
+    transform:translateY(-1px)
+}
+button:active {
+    transform:translateY(0)
+}
+.primary {
+    background:linear-gradient(120deg,var(--aqua-dark),var(--aqua));
+    color:#fff;
+    box-shadow:0 7px 16px rgba(8,127,134,.2)
+}
+.primary:hover {
+    background:linear-gradient(120deg,#066c75,#079895);
+    box-shadow:0 9px 20px rgba(8,127,134,.25)
+}
+.secondary {
+    background:#e9f6f5;
+    color:#17616a;
+    border:1px solid #d2ece9
+}
+.secondary:hover {
+    background:#dff2f0
+}
+/* Disabled state for buttons */
+button[disabled],button.disabled {
+    opacity:.5;
+    cursor:not-allowed;
+    pointer-events:none
+}
+.notice {
+    border:1px solid #bce8e3;
+    background:linear-gradient(120deg,#e8faf7,#f2fcfb);
+    color:#205963;
+    border-radius:12px;
+    padding:13px 15px;
+    font-size:13px;
+    margin-top:15px
+}
+.result {
+    position:sticky;
+    top:16px
+}
+.hero-result {
+    background:linear-gradient(135deg,#e8faf7,#f3fcfb);
+    border:1px solid #c9ece7;
+    border-radius:15px;
+    padding:18px;
+    margin:15px 0
+}
+.hero-result .small {
+    font-size:11px;
+    color:#50747a;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.09em
+}
+.big {
+    font-size:34px;
+    font-weight:850;
+    letter-spacing:-.04em;
+    margin:4px 0;
+    color:#087f86;
+    word-break:break-word
+}
+.status {
+    display:inline-block;
+    border-radius:99px;
+    padding:6px 11px;
+    font-size:12px;
+    font-weight:800;
+    background:#e8f0f0;
+    color:#47636a;
+    transition:background .2s,color .2s
+}
+.status.good {
+    background:#d9f7e9;
+    color:#116342
+}
+.status.warn {
+    background:#fff4d8;
+    color:#855d00
+}
+.status.bad {
+    background:#fee6e4;
+    color:#991b1b
+}
+.metrics {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:11px
+}
+.metric {
+    padding:13px;
+    border:1px solid var(--line);
+    border-radius:13px;
+    background:#fcffff;
+    overflow:hidden
+}
+.metric span {
+    display:block;
+    color:var(--muted);
+    font-size:12px
+}
+.metric strong {
+    display:block;
+    font-size:19px;
+    margin-top:4px;
+    color:#14515a;
+    word-break:break-word;
+    overflow-wrap:anywhere
+}
+.formula {
+    font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    background:#f0f9f8;
+    border:1px solid #d8ece9;
+    padding:12px;
+    border-radius:11px;
+    font-size:12px;
+    overflow-wrap:anywhere;
+    color:#28545b
+}
+.foot {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:13px
+}
+.error {
+    color:var(--red);
+    font-size:13px;
+    margin-top:10px;
+    display:none
+}
+.table-wrap {
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    border:1px solid var(--line);
+    border-radius:12px;
+    max-width:100%;
+    min-width:0
+}
+table {
+    border-collapse:collapse;
+    width:100%;
+    font-size:13px
+}
+th,td {
+    text-align:left;
+    padding:11px 12px;
+    border-bottom:1px solid var(--line);
+    white-space:nowrap
+}
+th {
+    color:#24545c;
+    background:#eaf7f6;
+    font-size:12px
+}
+tr:last-child td {
+    border-bottom:0
+}
+.hidden {
+    display:none!important
+}
+/* Delete button in test log */
+.btn-delete {
+    background:none;
+    border:1px solid #e8d0d0;
+    border-radius:7px;
+    color:#a44;
+    font-size:11px;
+    padding:4px 8px;
+    min-height:auto;
+    cursor:pointer;
+    font-weight:700
+}
+.btn-delete:hover {
+    background:#fee6e4;
+    border-color:#d99;
+    transform:none
+}
+#flowCalculator {
+    border-color:#bce8e3;
+    background:linear-gradient(180deg,#ffffff,#f7fdfc)
+}
+#flowCalculator h2:before {
+    content:"â†—";
+    display:inline-grid;
+    place-items:center;
+    width:27px;
+    height:27px;
+    margin-right:8px;
+    border-radius:8px;
+    background:#dff7f3;
+    color:#078b8c;
+    font-size:17px
+}
+#flowCalculator .hero-result {
+    background:#e8faf7
+}
+/* Export card and panel */
+.export-card {
+    scroll-margin-top:18px;
+    border:1px solid #a9ded9;
+    background:linear-gradient(145deg,#ffffff 0%,#f0fbf9 100%);
+    box-shadow:0 16px 36px rgba(8,85,93,.12)
+}
+.export-heading {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap
+}
+.export-heading h2 {
+    font-size:21px;
+    margin:3px 0 4px;
+    color:#07545b
+}
+.export-heading .sub {
+    margin:0 0 2px
+}
+.export-eyebrow {
+    color:#078b8c;
+    opacity:1;
+    font-size:10px
+}
+.export-count {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:99px;
+    padding:7px 12px;
+    background:#dff7f3;
+    color:#086b6f;
+    font-size:12px;
+    font-weight:800;
+    border:1px solid #bce8e3;
+    white-space:nowrap
+}
+.export-panel {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    background:linear-gradient(120deg,#e2f8f4,#f3fcfb);
+    border:1px solid #b6e4de;
+    border-radius:14px;
+    margin:12px 0 0;
+    padding:18px
+}
+.export-copy strong {
+    display:block;
+    color:#14515a;
+    font-size:14px
+}
+.export-copy span {
+    display:block;
+    color:#607d83;
+    font-size:12px;
+    margin-top:3px;
+    max-width:420px;
+    line-height:1.45
+}
+.export-actions {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap
+}
+.export-actions button {
+    min-width:150px;
+    min-height:45px;
+    box-shadow:0 3px 10px rgba(6,80,85,.06)
+}
+.export-message {
+    margin:11px 0 0;
+    padding:10px 12px;
+    border-radius:10px;
+    background:#edf8f7;
+    border:1px solid #d0ece8;
+    color:#28616a;
+    font-size:12px
+}
+.export-message:empty {
+    display:none
+}
+.export-message[data-state="success"] {
+    background:#e5f8ed;
+    border-color:#bfe8ce;
+    color:#12613d
+}
+.export-message[data-state="warning"] {
+    background:#fff7e5;
+    border-color:#f1dca5;
+    color:#7c5900
+}
+.export-card a {
+    color:#087f86;
+    font-weight:800;
+    text-decoration:underline;
+    text-underline-offset:2px
+}
+#printReport {
+    display:none
+}
+/* Keep nested grid and cards shrinkable on narrow screens. */
+.layout>section,.layout>aside,.card,.grid,.field {
+    min-width:0
+}
+input,select,button {
+    max-width:100%
+}
+/* Mobile usability: make taps reliable and show results immediately after the input form. */
+button {
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+    min-height:46px
+}
+#runtimeStatus {
+    border-color:#bce8e3;
+    background:#e8faf7;
+    color:#205963
+}
+
+/* ===== Print ===== */
+@media print {
+    body {
+        background:#fff!important;
+        color:#172f35!important;
+        font-size:11px
+    }
+    header {
+        background:#fff!important;
+        color:#12343b!important;
+        padding:10px 0!important;
+        border-bottom:2px solid #08a6a6
+    }
+    header p,.spec-pill {
+        color:#456!important
+    }
+    main {
+        margin:0!important;
+        padding:0!important;
+        max-width:none!important
+    }
+    .layout {
+        display:none!important
+    }
+    .foot {
+        display:none!important
+    }
+    #printReport {
+        display:block!important;
+        padding:18px 0
+    }
+    #printReport h1 {
+        font-size:23px;
+        margin:0 0 4px
+    }
+    #printReport h2 {
+        font-size:15px;
+        margin:18px 0 7px
+    }
+    #printReport table {
+        font-size:9px
+    }
+    #printReport th,#printReport td {
+        padding:6px;
+        border:1px solid #cbdede;
+        white-space:normal
+    }
+    #printReport .print-meta {
+        color:#526d72;
+        font-size:10px;
+        margin:5px 0 14px
+    }
+    .no-print {
+        display:none!important
+    }
+    @page {
+        size:A4 landscape;
+        margin:12mm
+    }
+}
+
+/* ===== Responsive: tablet / mobile ===== */
+@media(max-width:780px) {
+    body {
+        font-size:16px
+    }
+    header {
+        padding:24px 18px 42px
+    }
+    main {
+        padding-left:12px;
+        padding-right:12px
+    }
+    .layout {
+        grid-template-columns:1fr
+    }
+    /* Show result card right after input card on mobile using display:contents */
+    .layout>section,.layout>aside {
+        display:contents
+    }
+    #volumeCalculator {
+        order:1
+    }
+    #resultCard {
+        order:2;
+        position:static
+    }
+    #flowCalculator {
+        order:3
+    }
+    #instructions {
+        order:4
+    }
+    #testLog {
+        order:5
+    }
+    #volumeCalculator,#resultCard,#flowCalculator,#instructions,#testLog {
+        width:100%;
+        min-width:0
+    }
+    .result {
+        position:static
+    }
+    .grid {
+        grid-template-columns:1fr
+    }
+    .field.full {
+        grid-column:auto
+    }
+    .interval {
+        grid-template-columns:1fr 115px
+    }
+    .card {
+        padding:16px;
+        border-radius:16px
+    }
+    .brand-logo {
+        width:135px
+    }
+    .metrics {
+        gap:8px
+    }
+    .metric strong {
+        font-size:17px
+    }
+    input,select {
+        font-size:16px;
+        min-height:48px
+    }
+    .actions button {
+        flex:1 1 100%;
+        width:100%;
+        min-height:52px;
+        font-size:16px
+    }
+    /* Export panel: stack vertically on mobile */
+    .export-heading {
+        display:block
+    }
+    .export-count {
+        margin-top:10px
+    }
+    .export-panel {
+        flex-direction:column;
+        align-items:stretch
+    }
+    .export-copy {
+        width:100%
+    }
+    .export-actions {
+        width:100%;
+        flex-direction:column
+    }
+    .export-actions button {
+        flex:1 1 auto;
+        min-width:0;
+        min-height:48px;
+        font-size:15px;
+        width:100%
+    }
+    /* Table cells can wrap on mobile */
+    th,td {
+        white-space:normal;
+        padding:9px 8px
+    }
+}
+
+/* ===== Extra-small screens (< 400px) ===== */
+@media(max-width:400px) {
+    .metrics {
+        grid-template-columns:1fr
+    }
+    .big {
+        font-size:28px
+    }
+    h1 {
+        font-size:24px
+    }
+    .brand-logo {
+        width:120px
+    }
+    .export-heading h2 {
+        font-size:18px
+    }
+}
+
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brandbar"><img class="brand-logo" src="data:image/png;base64,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" alt="EBSL Automat logo"></div><div class="eyebrow">Field verification tool Â· Modbus RS485</div><h1>EBSL Automat<br>Water Meter Physical Verification Calculator</h1><p>Compare the meter's cumulative-volume change with the water physically collected. Select the elapsed interval yourself and enter the readings after the test.</p><span class="spec-pill" id="diameterPill">Selected pipe diameter: 24 mm</span></div></header>
+<div id="runtimeStatus" class="notice" style="display:none;max-width:1120px;margin:14px auto;padding:12px 18px" role="status"></div>
+<noscript><div class="notice" style="max-width:1120px;margin:14px auto;padding:14px 18px;border-color:#e8b4aa;background:#fff4f2;color:#8a2e22"><strong>JavaScript is disabled in this viewer.</strong> Open this HTML file directly in Chrome (Android) or Safari (iPhone). File previews in messaging, cloud-drive or document apps may not run calculator buttons.</div></noscript>
+<main>
+<div class="layout">
+<section>
+<div class="card" id="volumeCalculator">
+<h2>1. Enter test readings</h2><p class="sub">Use cumulative totalizer readings in litres. Take the first reading immediately before collecting water and the second immediately after.</p>
+<div class="grid">
+<div class="field full"><label for="pipeDiameter">Pipe diameter</label><select id="pipeDiameter"><option value="15">15 mm (DN15)</option><option value="20">20 mm (DN20)</option><option value="24" selected>24 mm</option><option value="25">25 mm (DN25)</option><option value="32">32 mm (DN32)</option><option value="40">40 mm (DN40)</option><option value="50">50 mm (DN50)</option><option value="65">65 mm (DN65)</option><option value="80">80 mm (DN80)</option><option value="100">100 mm (DN100)</option><option value="custom">Other / custom diameter</option></select><div class="field hidden" id="customDiameterWrap" style="margin-top:8px"><label for="customDiameter">Enter diameter (mm)</label><input id="customDiameter" type="number" min="1" step="any" placeholder="Enter pipe diameter in mm"></div><span class="hint">Choose the actual internal pipe diameter used for this test. This is recorded with the test; it does not alter the volume or flow-rate arithmetic.</span></div>
+<div class="field"><label for="initial">Previous cumulative reading (L)</label><input id="initial" type="number" min="0" step="any" placeholder="e.g. 43976"></div>
+<div class="field"><label for="final">New cumulative reading (L)</label><input id="final" type="number" min="0" step="any" placeholder="Enter after test"></div>
+<div class="field"><label for="actual">Actual physically collected volume (L)</label><input id="actual" type="number" min="0" step="any" placeholder="e.g. 20"></div>
+
+<div class="field"><label for="duration">Elapsed test interval</label><div class="interval"><input id="duration" type="number" min="0" step="any" placeholder="e.g. 5"><select id="unit"><option value="sec">Seconds</option><option value="min" selected>Minutes</option><option value="hr">Hours</option></select></div></div>
+<div class="field full"><label for="notes">Test notes (optional)</label><input id="notes" type="text" placeholder="e.g. outlet fully open, steady flow, 20 L calibrated vessel"></div>
+</div>
+<div class="actions"><button class="primary" id="calculate" type="button">Calculate accuracy</button><button class="secondary" id="reset" type="button">Clear inputs</button></div>
+<div class="error" id="error" role="alert"></div>
+<div class="notice"><strong>Important:</strong> The actual collected volume must be measured independently (for example, using a calibrated vessel or weighing method). The elapsed interval is used to calculate average flow rate; it does not replace the physical volume measurement.</div>
+</div>
+<div class="card" id="flowCalculator">
+<h2>2. Flow-rate accuracy calculator</h2>
+<p class="sub">This is a separate calculator. It compares the average physical flow rate with the average flow rate reported by the meter or its Modbus monitoring system.</p>
+<div class="grid">
+<div class="field"><label for="flowModbus">Average Modbus flow rate (L/min)</label><input id="flowModbus" type="number" min="0" step="any" placeholder="e.g. 7.6"><span class="hint">Enter the average of multiple flow-rate readings during the same physical collection interval, in L/min.</span></div>
+<div class="field"><label>Physical average flow rate</label><div class="formula" id="physicalFlowPreview">Enter actual collected volume and test interval above.</div></div>
+</div>
+<div class="actions"><button class="primary" id="calculateFlow" type="button">Calculate flow-rate error</button></div>
+<div class="metrics" style="margin-top:14px">
+<div class="metric"><span>Physical average flow</span><strong id="flowActualResult">â€” L/min</strong></div>
+<div class="metric"><span>Average Modbus flow</span><strong id="flowModbusResult">â€” L/min</strong></div>
+<div class="metric"><span>Flow-rate difference</span><strong id="flowDifference">â€” L/min</strong></div>
+<div class="metric"><span>Flow-rate error</span><strong id="flowErrorResult">â€” %</strong></div>
+</div>
+<p class="foot" id="flowInterpretation">Enter the actual collected volume and interval above, then enter the average Modbus flow rate here.</p>
+</div>
+<div class="card" id="instructions">
+<h2>3. How to perform the test</h2><p class="sub">A simple repeatable procedure. Select the actual pipe diameter in the test readings section.</p>
+<ol style="padding-left:20px;margin:0;color:#334155">
+<li>Confirm the pipe is full of water, flow direction is correct, and there is no bypass or leakage.</li>
+<li>With water flow stopped, note the previous cumulative Modbus totalizer value (L).</li>
+<li>Choose the interval you want to test. Start the timer as you begin collecting water.</li>
+<li>Collect the water in a calibrated container. Record the actual collected litres and elapsed time.</li>
+<li>During the same collection interval, record the meter-reported flow rate at regular intervals (for example every 5â€“10 seconds), in L/min. Calculate the average of those readings and enter it above.</li>
+<li>Stop the flow and note the new cumulative totalizer value (L).</li>
+<li>Enter all values above and calculate. Repeat at low, medium and higher flow rates within the meter's rated range.</li>
+</ol>
+<p class="foot">If the meter totalizer uses multiple Modbus registers, combine them using the manufacturer's documented data type, word order and scaling. Enter the resulting cumulative volume in litres.</p>
+</div>
+</section>
+<aside>
+<div class="card result" id="resultCard" aria-live="polite">
+<h2>Test result</h2><p class="sub">Your calculated result will appear here.</p>
+<div class="hero-result"><div class="small">Meter-recorded volume</div><div class="big" id="meterVolume">â€” L</div><span class="status" id="status">Waiting for inputs</span></div>
+<div class="metrics">
+<div class="metric"><span>Volume difference</span><strong id="difference">â€” L</strong></div>
+<div class="metric"><span>Error percentage</span><strong id="errorPct">â€” %</strong></div>
+<div class="metric"><span>Actual average flow</span><strong id="actualFlow">â€” L/min</strong></div>
+<div class="metric"><span>Actual vs Modbus flow error</span><strong id="flowError">â€” %</strong></div>
+<div class="metric"><span>Average Modbus flow</span><strong id="meterFlow">â€” L/min</strong></div>
+</div>
+<div style="margin-top:16px"><div class="small" style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:7px">CALCULATION</div><div class="formula" id="formula">Meter volume = New totalizer âˆ’ Previous totalizer<br>Error % = (Meter volume âˆ’ Actual volume) Ã· Actual volume Ã— 100</div></div>
+<p class="foot" id="interpretation">Enter readings and click Calculate accuracy. A positive error means the meter registered more than the physically collected volume; a negative error means it registered less.</p>
+</div>
+<div class="card" id="testLog">
+<h2>Test log</h2><p class="sub">Calculated tests are kept in this page until you close or refresh it. Use the export options to save your test history in Excel, Word, CSV or PDF. Volume error and flow-rate error are reported separately.</p>
+<div class="table-wrap"><table><thead><tr><th>Test</th><th>Actual (L)</th><th>Meter (L)</th><th>Volume error</th><th>Flow error</th><th>Pipe diameter</th><th>Interval</th><th></th></tr></thead><tbody id="log"><tr><td colspan="8" style="color:#64748b">No tests recorded yet.</td></tr></tbody></table></div>
+<p class="foot no-print">Use the <a href="#exportArea">Export Report section</a> below to download the test history.</p>
+</div>
+</aside>
+</div>
+
+<section class="card export-card no-print" id="exportArea" aria-label="Export test report">
+  <div class="export-heading">
+    <div>
+      <div class="eyebrow export-eyebrow">REPORT &amp; DOWNLOADS</div>
+      <h2>Export Test Report</h2>
+      <p class="sub">Download your EBSL Automat water-meter verification records in an editable Excel or Word file.</p>
+    </div>
+    <span class="export-count" id="exportCount">0 tests recorded</span>
+  </div>
+  <div class="export-panel">
+    <div class="export-copy"><strong>Choose a report format</strong><span>Excel for analysis Â· Word for a formatted report Â· CSV for raw data Â· PDF for printing</span></div>
+    <div class="export-actions"><button class="primary" id="exportExcel" type="button">â–¦ Export Excel</button><button class="secondary" id="exportWord" type="button">â–¤ Export Word</button><button class="secondary" id="export" type="button">â†“ Export CSV</button><button class="secondary" id="exportPdf" type="button">â–¤ Export PDF</button></div>
+  </div>
+  <p class="export-message" id="exportStatus" role="status" aria-live="polite">Your export buttons are ready. Calculate at least one test before downloading a report.</p>
+</section>
+
+<p class="foot" style="max-width:760px;margin:0 auto">This calculator performs arithmetic only. It does not certify the meter or decide pass/fail. Compare the measured error with the manufacturer's specification for the installed meter and applicable test uncertainty. Ensure the collection vessel and measurement method are sufficiently accurate.</p>
+</main>
+<section id="printReport" aria-hidden="true"></section>
+<script>
+/* EBSL Automat calculator â€“ legacy/mobile-browser compatible ES5 script */
+var tests = [];
+function byId(id) { return document.getElementById(id); }
+function isNum(v) { return typeof v === 'number' && isFinite(v); }
+function fmt(n, d) {
+  if (typeof d === 'undefined') d = 3;
+  if (!isNum(Number(n))) return String(n);
+  var value = Number(n);
+  var factor = Math.pow(10, d);
+  value = Math.round(value * factor) / factor;
+  var parts = String(value).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+function safeScroll(id) {
+  var target = byId(id);
+  if (!target) return;
+  try {
+    if (target.scrollIntoView) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } catch (e) { /* Scrolling is optional; never block calculation. */ }
+}
+function showError(msg) {
+  var el = byId('error');
+  el.textContent = msg || '';
+  el.style.display = msg ? 'block' : 'none';
+  if (msg) safeScroll('error');
+}
+function showExportStatus(msg, state) {
+  var el = byId('exportStatus');
+  if (!el) return;
+  el.textContent = msg;
+  if (el.setAttribute) el.setAttribute('data-state', state || 'info');
+}
+function updateExportCount() {
+  var n = tests.length;
+  byId('exportCount').textContent = n + ' test' + (n === 1 ? '' : 's') + ' recorded';
+}
+function selectedDiameter() {
+  var select = byId('pipeDiameter');
+  var value = select.value === 'custom' ? byId('customDiameter').value : select.value;
+  return Number(value);
+}
+
+/* Classify error magnitude for status badge */
+function errorClass(err) {
+  var abs = Math.abs(err);
+  if (abs === 0) return 'good';
+  if (abs <= 2) return 'good';
+  if (abs <= 5) return 'warn';
+  return 'bad';
+}
+
+function calculate() {
+  showError('');
+  var a = byId('initial').value;
+  var b = byId('final').value;
+  var c = byId('actual').value;
+  var d = byId('duration').value;
+  var rawFlow = byId('flowModbus').value;
+  if (a === '' || b === '' || c === '' || d === '') {
+    showError('Please fill in both totalizer readings, actual collected volume and test interval.');
+    return false;
+  }
+  var initial = Number(a), finalValue = Number(b), actual = Number(c), duration = Number(d);
+  var modbusFlow = rawFlow === '' ? null : Number(rawFlow);
+  if (!isNum(initial) || !isNum(finalValue) || !isNum(actual) || !isNum(duration) || initial < 0 || finalValue < 0 || actual <= 0 || duration <= 0 || (modbusFlow !== null && (!isNum(modbusFlow) || modbusFlow < 0))) {
+    showError('Enter valid numbers. Readings and flow rate cannot be negative; actual volume and interval must be greater than zero.');
+    return false;
+  }
+  var diameter = selectedDiameter();
+  if (!isNum(diameter) || diameter <= 0) {
+    showError('Select a pipe diameter or enter a custom diameter greater than zero.');
+    return false;
+  }
+  if (finalValue < initial) {
+    showError('The new cumulative reading is lower than the previous reading. Check the readings, totalizer reset or rollover before calculating.');
+    return false;
+  }
+  var unitValue = byId('unit').value;
+  var minutes = duration * (unitValue === 'sec' ? 1 / 60 : (unitValue === 'hr' ? 60 : 1));
+  var meter = finalValue - initial;
+  var err = ((meter - actual) / actual) * 100;
+  var diff = meter - actual;
+  var actualFlow = actual / minutes;
+  var flowErr = (modbusFlow === null) ? null : ((modbusFlow - actualFlow) / actualFlow) * 100;
+  byId('meterVolume').textContent = fmt(meter) + ' L';
+  byId('difference').textContent = (diff > 0 ? '+' : '') + fmt(diff) + ' L';
+  byId('errorPct').textContent = (err > 0 ? '+' : '') + fmt(err, 2) + '%';
+  byId('actualFlow').textContent = fmt(actualFlow) + ' L/min';
+  byId('meterFlow').textContent = modbusFlow === null ? 'Not entered' : fmt(modbusFlow) + ' L/min';
+  byId('flowError').textContent = flowErr === null ? 'Use flow calculator' : ((flowErr > 0 ? '+' : '') + fmt(flowErr, 2) + '%');
+  var status = byId('status');
+  var cls = errorClass(err);
+  status.className = 'status ' + cls;
+  status.textContent = err > 0 ? 'Over-registering' : (err < 0 ? 'Under-registering' : 'Exact match');
+  byId('interpretation').textContent = err > 0 ? ('The totalizer registered ' + fmt(Math.abs(diff)) + ' L more than the collected volume (' + fmt(Math.abs(err), 2) + '% error). Flow-rate comparison is calculated separately.') : (err < 0 ? ('The totalizer registered ' + fmt(Math.abs(diff)) + ' L less than the collected volume (' + fmt(Math.abs(err), 2) + '% error). Flow-rate comparison is calculated separately.') : 'The totalizer and physical collection match for this test. Flow-rate comparison is calculated separately.');
+  byId('formula').innerHTML = 'Meter volume = ' + fmt(finalValue) + ' âˆ’ ' + fmt(initial) + ' = ' + fmt(meter) + ' L<br>Error % = (' + fmt(meter) + ' âˆ’ ' + fmt(actual) + ') Ã· ' + fmt(actual) + ' Ã— 100 = ' + fmt(err, 2) + '%';
+  var interval = duration + ' ' + (unitValue === 'sec' ? 'seconds' : (unitValue === 'hr' ? 'hours' : 'minutes'));
+  var record = { actual: actual, meter: meter, error: err, interval: interval, notes: byId('notes').value, initial: initial, final: finalValue, actualFlow: actualFlow, meterFlow: modbusFlow, flowError: flowErr, diameter: diameter, duration: duration, durationUnit: unitValue };
+  tests.push(record);
+  renderLog();
+  safeScroll('resultCard');
+  return true;
+}
+
+function flowCalc() {
+  showError('');
+  var actualText = byId('actual').value;
+  var durationText = byId('duration').value;
+  var raw = byId('flowModbus').value;
+  if (actualText === '' || durationText === '' || raw === '') {
+    showError('For flow-rate accuracy, enter actual collected volume, test interval and average Modbus flow rate.');
+    return false;
+  }
+  var actual = Number(actualText), duration = Number(durationText), modbus = Number(raw);
+  if (!isNum(actual) || !isNum(duration) || !isNum(modbus) || actual <= 0 || duration <= 0 || modbus < 0) {
+    showError('Enter valid positive volume and interval, and a non-negative Modbus flow rate.');
+    return false;
+  }
+  var unitValue = byId('unit').value;
+  var minutes = duration * (unitValue === 'sec' ? 1 / 60 : (unitValue === 'hr' ? 60 : 1));
+  var physical = actual / minutes;
+  var diff = modbus - physical;
+  var err = (diff / physical) * 100;
+  byId('flowActualResult').textContent = fmt(physical) + ' L/min';
+  byId('flowModbusResult').textContent = fmt(modbus) + ' L/min';
+  byId('flowDifference').textContent = (diff > 0 ? '+' : '') + fmt(diff) + ' L/min';
+  byId('flowErrorResult').textContent = (err > 0 ? '+' : '') + fmt(err, 2) + '%';
+  byId('physicalFlowPreview').textContent = fmt(actual) + ' L / ' + fmt(minutes) + ' min = ' + fmt(physical) + ' L/min';
+  byId('flowInterpretation').textContent = err > 0 ? ('Modbus average flow is higher than the physical average by ' + fmt(Math.abs(err), 2) + '%.') : (err < 0 ? ('Modbus average flow is lower than the physical average by ' + fmt(Math.abs(err), 2) + '%.') : 'The average Modbus and physical flow rates match for this test.');
+  var diameter = selectedDiameter();
+  var i, latest = null;
+  for (i = tests.length - 1; i >= 0; i--) {
+    if (tests[i].initial === Number(byId('initial').value) && tests[i].final === Number(byId('final').value) && tests[i].actual === actual && tests[i].duration === duration && tests[i].durationUnit === unitValue && tests[i].diameter === diameter) { latest = tests[i]; break; }
+  }
+  if (latest) {
+    latest.meterFlow = modbus;
+    latest.flowError = err;
+    renderLog();
+    showExportStatus('Flow-rate result added to the matching test record. Excel and Word exports include it.', 'success');
+  } else {
+    showExportStatus('Flow-rate result calculated. To include it in exports, calculate and record the matching volume test first.', 'info');
+  }
+  safeScroll('flowActualResult');
+  return true;
+}
+
+function deleteTest(index) {
+  if (index >= 0 && index < tests.length) {
+    tests.splice(index, 1);
+    renderLog();
+  }
+}
+
+function renderLog() {
+  var body = byId('log');
+  updateExportCount();
+  if (!tests.length) {
+    body.innerHTML = '<tr><td colspan="8" style="color:#64748b">No tests recorded yet.</td></tr>';
+    showExportStatus('Your export buttons are ready. Calculate at least one test before downloading a report.', 'info');
+    return;
+  }
+  var html = '', i, t;
+  for (i = 0; i < tests.length; i++) {
+    t = tests[i];
+    html += '<tr><td>' + (i + 1) + '</td><td>' + fmt(t.actual) + '</td><td>' + fmt(t.meter) + '</td><td>' + fmt(t.error, 2) + '%</td><td>' + (t.flowError === null ? 'N/A' : fmt(t.flowError, 2) + '%') + '</td><td>' + fmt(t.diameter) + ' mm</td><td>' + t.interval + '</td><td><button class="btn-delete" onclick="deleteTest(' + i + ')" title="Delete test #' + (i + 1) + '" type="button">âœ•</button></td></tr>';
+  }
+  body.innerHTML = html;
+  showExportStatus(tests.length + ' test(s) available for export. Choose Excel, Word, CSV or PDF.', 'success');
+}
+
+function resetCalculator() {
+  var ids = ['initial', 'final', 'actual', 'flowModbus', 'duration', 'notes'];
+  var i;
+  for (i = 0; i < ids.length; i++) byId(ids[i]).value = '';
+  byId('unit').value = 'min';
+  /* Reset pipe diameter to default */
+  byId('pipeDiameter').value = '24';
+  byId('customDiameterWrap').className = 'field hidden';
+  byId('diameterPill').textContent = 'Selected pipe diameter: 24 mm';
+  showError('');
+  var resetIds = ['meterVolume', 'difference', 'errorPct', 'actualFlow', 'meterFlow', 'flowError', 'flowActualResult', 'flowModbusResult', 'flowDifference', 'flowErrorResult'];
+  for (i = 0; i < resetIds.length; i++) byId(resetIds[i]).textContent = 'â€”';
+  byId('physicalFlowPreview').textContent = 'Enter actual collected volume and test interval above.';
+  byId('flowInterpretation').textContent = 'Enter the actual collected volume and interval above, then enter the average Modbus flow rate here.';
+  byId('status').className = 'status';
+  byId('status').textContent = 'Waiting for inputs';
+  byId('interpretation').textContent = 'Enter readings and calculate to view the comparison.';
+  byId('formula').innerHTML = 'Meter volume = New totalizer âˆ’ Previous totalizer<br>Error % = (Meter volume âˆ’ Actual volume) Ã· Actual volume Ã— 100';
+}
+
+function exportRows() {
+  var rows = [['Test', 'Pipe diameter (mm)', 'Previous totalizer (L)', 'New totalizer (L)', 'Meter volume (L)', 'Actual collected volume (L)', 'Volume error (%)', 'Test interval', 'Actual average flow (L/min)', 'Average Modbus flow (L/min)', 'Flow-rate error (%)', 'Notes']];
+  var i, t;
+  for (i = 0; i < tests.length; i++) {
+    t = tests[i];
+    rows.push([i + 1, t.diameter, t.initial, t.final, t.meter, t.actual, t.error, t.interval, t.actualFlow, t.meterFlow === null ? '' : t.meterFlow, t.flowError === null ? '' : t.flowError, t.notes || '']);
+  }
+  return rows;
+}
+
+function xmlEscape(v) {
+  return String(v === null || typeof v === 'undefined' ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+function downloadFile(filename, content, mime) {
+  try {
+    var blob = new Blob([content], { type: mime });
+    var url = (window.URL || window.webkitURL).createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.setTimeout(function () { (window.URL || window.webkitURL).revokeObjectURL(url); }, 3000);
+    showExportStatus('Report created. Check your phone/browser Downloads folder.', 'success');
+  } catch (e) {
+    showExportStatus('Your browser blocked the automatic download. Open this page in Chrome or Safari and try again.', 'warning');
+  }
+}
+
+function csvExport() {
+  if (!tests.length) { showExportStatus('Calculate at least one test before exporting.', 'warning'); return; }
+  var rows = exportRows(), csv = '', i, j, val;
+  for (i = 0; i < rows.length; i++) {
+    var fields = [];
+    for (j = 0; j < rows[i].length; j++) {
+      val = String(rows[i][j] === null || typeof rows[i][j] === 'undefined' ? '' : rows[i][j]).replace(/"/g, '""');
+      fields.push('"' + val + '"');
+    }
+    csv += fields.join(',') + '\r\n';
+  }
+  downloadFile('EBSL_Automat_Water_Meter_Test_Report.csv', csv, 'text/csv;charset=utf-8');
+}
+
+function excelExport() {
+  if (!tests.length) { showExportStatus('Calculate at least one test before exporting.', 'warning'); return; }
+  var rows = exportRows(), xmlRows = '', i, j, v, type, style;
+  for (i = 0; i < rows.length; i++) {
+    xmlRows += '<Row>';
+    for (j = 0; j < rows[i].length; j++) {
+      v = rows[i][j]; type = typeof v === 'number' && isFinite(v) ? 'Number' : 'String';
+      style = i === 0 ? ' ss:StyleID="Header"' : '';
+      xmlRows += '<Cell' + style + '><Data ss:Type="' + type + '">' + xmlEscape(v) + '</Data></Cell>';
+    }
+    xmlRows += '</Row>';
+  }
+  var xml = '<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><DocumentProperties xmlns="urn:schemas-microsoft-com:office:office"><Title>EBSL Automat Water Meter Verification</Title><Author>EBSL Automat</Author></DocumentProperties><Styles><Style ss:ID="Default" ss:Name="Normal"><Font ss:FontName="Arial" ss:Size="10"/></Style><Style ss:ID="Header"><Interior ss:Color="#DDF5F1" ss:Pattern="Solid"/><Font ss:Bold="1" ss:Color="#07545B"/></Style></Styles><Worksheet ss:Name="Test Results"><Table>' + xmlRows + '</Table></Worksheet></Workbook>';
+  downloadFile('EBSL_Automat_Water_Meter_Test_Report.xls', xml, 'application/vnd.ms-excel;charset=utf-8');
+}
+
+function wordExport() {
+  if (!tests.length) { showExportStatus('Calculate at least one test before exporting.', 'warning'); return; }
+  var rows = '', i, t;
+  for (i = 0; i < tests.length; i++) {
+    t = tests[i];
+    rows += '<tr><td>' + (i + 1) + '</td><td>' + fmt(t.diameter) + ' mm</td><td>' + fmt(t.initial) + '</td><td>' + fmt(t.final) + '</td><td>' + fmt(t.meter) + '</td><td>' + fmt(t.actual) + '</td><td>' + fmt(t.error, 2) + '%</td><td>' + xmlEscape(t.interval) + '</td><td>' + fmt(t.actualFlow) + '</td><td>' + (t.meterFlow === null ? '-' : fmt(t.meterFlow)) + '</td><td>' + (t.flowError === null ? '-' : fmt(t.flowError, 2) + '%') + '</td><td>' + xmlEscape(t.notes) + '</td></tr>';
+  }
+  var doc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>EBSL Automat Water Meter Verification Report</title><style>body{font-family:Arial,sans-serif;color:#173b40;margin:28px}h1{color:#087f86;font-size:22px}table{border-collapse:collapse;width:100%;font-size:8pt}th{background:#dff5f1;color:#07545b}th,td{border:1px solid #b9d8d6;padding:6px;text-align:left}p{font-size:10pt;line-height:1.5}</style></head><body><h1>EBSL AUTOMAT</h1><h2>Water Meter Physical Verification Report</h2><p>Generated: ' + new Date().toLocaleString() + ' | Total tests: ' + tests.length + '</p><table><thead><tr><th>Test</th><th>Pipe diameter</th><th>Previous totalizer</th><th>New totalizer</th><th>Meter volume</th><th>Actual volume</th><th>Volume error</th><th>Interval</th><th>Actual avg flow</th><th>Modbus avg flow</th><th>Flow error</th><th>Notes</th></tr></thead><tbody>' + rows + '</tbody></table><p>Meter volume = New totalizer âˆ’ Previous totalizer.</p><p>Volume error (%) = (Meter volume âˆ’ Actual volume) Ã· Actual volume Ã— 100.</p><p>Actual average flow (L/min) = Actual collected volume Ã· duration in minutes.</p><p>Flow-rate error (%) = (Average Modbus flow âˆ’ Actual average flow) Ã· Actual average flow Ã— 100.</p><p>These are comparison results, not a calibration certificate.</p></body></html>';
+  downloadFile('EBSL_Automat_Water_Meter_Test_Report.doc', doc, 'application/msword;charset=utf-8');
+}
+
+function pdfExport() {
+  if (!tests.length) { showExportStatus('Calculate at least one test before exporting.', 'warning'); return; }
+  var area = byId('printReport');
+  wordExportForPrint(area);
+  window.print();
+}
+
+function wordExportForPrint(area) {
+  var rows = '', i, t;
+  for (i = 0; i < tests.length; i++) {
+    t = tests[i];
+    rows += '<tr><td>' + (i + 1) + '</td><td>' + fmt(t.diameter) + '</td><td>' + fmt(t.initial) + '</td><td>' + fmt(t.final) + '</td><td>' + fmt(t.meter) + '</td><td>' + fmt(t.actual) + '</td><td>' + fmt(t.error, 2) + '%</td><td>' + xmlEscape(t.interval) + '</td><td>' + fmt(t.actualFlow) + '</td><td>' + (t.meterFlow === null ? '-' : fmt(t.meterFlow)) + '</td><td>' + (t.flowError === null ? '-' : fmt(t.flowError, 2) + '%') + '</td></tr>';
+  }
+  area.innerHTML = '<h1>EBSL AUTOMAT âˆ’ Water Meter Physical Verification Report</h1><p>Generated: ' + new Date().toLocaleString() + ' | Tests: ' + tests.length + '</p><table><tr><th>Test</th><th>Diameter</th><th>Initial</th><th>Final</th><th>Meter volume</th><th>Actual volume</th><th>Volume error</th><th>Interval</th><th>Actual flow</th><th>Modbus flow</th><th>Flow error</th></tr>' + rows + '</table><p>Volume error = (Meter volume âˆ’ Actual volume) Ã· Actual volume Ã— 100.</p><p>Flow error = (Average Modbus flow âˆ’ Actual average flow) Ã· Actual average flow Ã— 100.</p>';
+}
+
+function wireButton(id, fn) {
+  var el = byId(id);
+  if (!el) return;
+  el.onclick = fn;
+}
+
+function updatePhysicalPreview() {
+  var a = Number(byId('actual').value), d = Number(byId('duration').value);
+  if (byId('actual').value !== '' && byId('duration').value !== '' && a > 0 && d > 0) {
+    var minutes = d * (byId('unit').value === 'sec' ? 1 / 60 : (byId('unit').value === 'hr' ? 60 : 1));
+    byId('physicalFlowPreview').textContent = fmt(a) + ' L / ' + fmt(minutes) + ' min = ' + fmt(a / minutes) + ' L/min';
+  }
+}
+
+function initCalculator() {
+  wireButton('calculate', calculate);
+  wireButton('calculateFlow', flowCalc);
+  wireButton('reset', resetCalculator);
+  wireButton('exportExcel', excelExport);
+  wireButton('exportWord', wordExport);
+  wireButton('export', csvExport);
+  wireButton('exportPdf', pdfExport);
+  byId('pipeDiameter').onchange = function () {
+    var custom = byId('pipeDiameter').value === 'custom';
+    byId('customDiameterWrap').className = custom ? 'field' : 'field hidden';
+    byId('diameterPill').textContent = 'Selected pipe diameter: ' + (custom ? (byId('customDiameter').value || 'Custom') : byId('pipeDiameter').value) + ' mm';
+  };
+  byId('customDiameter').oninput = function () { byId('diameterPill').textContent = 'Selected pipe diameter: ' + (byId('customDiameter').value || 'Custom') + ' mm'; };
+  byId('actual').oninput = updatePhysicalPreview;
+  byId('duration').oninput = updatePhysicalPreview;
+  byId('unit').onchange = updatePhysicalPreview;
+  updateExportCount();
+  if (document.documentElement && document.documentElement.classList) document.documentElement.classList.add('js-enabled');
+  var notice = byId('runtimeStatus');
+  if (notice) { notice.innerHTML = 'Calculator ready on this device. Enter readings and tap a calculation button.'; notice.style.display = 'block'; }
+}
+
+if (document.readyState === 'loading' && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', initCalculator);
+} else {
+  initCalculator();
+}
+
+</script>
+</body>
+</html>
